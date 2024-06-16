@@ -1,0 +1,51 @@
+{%- unless product.has_only_default_variant -%}
+  <div  class="variants-color-and-size">
+  {%- for option in product.options_with_values -%}
+    {%- assign downcase_option = option.name | downcase -%}
+    {%- if downcase_option == 'size' -%}
+    <ul class="variants-list">
+      {%- for value in option.values -%}{%- assign value_url = product.variants[forloop.index0].url -%}{%- assign value_id = product.variants[forloop.index0].id -%}
+      <li class="variant-item" data-id="{{ value_id }}"{% for coption in product.options_with_values %}{%- assign downcase_coption = coption.name | downcase -%}{% if downcase_coption == 'color' %}{% for cvalue in coption.values %}{% assign cvalue_id = product.variants[forloop.index0].id %} data-{{ cvalue }}="{{ cvalue_id }}"{% endfor %}{% endif %}{% endfor %}>
+        <a href="{{value_url }}">{{ value }}</a>
+      </li>
+      {%- endfor -%}
+    </ul>
+    {%- endif -%}
+  {%- endfor -%}
+  </div>
+{%- endunless -%}
+      
+{%- unless product.has_only_default_variant -%}     
+  <div class="color-and-size">
+  {% assign color_options = product.options_with_values | where: 'name', 'Color' | map: 'values' | join: ',' | split: ',' %}
+  {% for color in color_options %}
+    <ul class="{{ color }}-variants">
+      <label>{{ color }}:</label>
+      {% assign size_option1 = product.variants | where: 'option1', color %}
+      {% assign size_option2 = product.variants | where: 'option2', color %}
+      {% assign size_option3 = product.variants | where: 'option3', color %}
+      {% assign all_variants = size_option1 | concat: size_option2 | concat: size_option3 | uniq %}
+      {% for variant in all_variants %}
+        <li>[{{ variant.option2 }} - Variant ID: {{ variant.id }}]</li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+</div>
+{%- endunless -%}
+      
+{%- unless product.has_only_default_variant -%}     
+<div class="color-and-size">
+  {% assign color_options = product.options_with_values | where: 'name', 'Color' | map: 'values' | first %}
+  {% for color in color_options %}
+    <ul class="{{ color }}-variants">
+      <label>{{ color }}:</label>
+      {% assign option3_variants = product.variants | where: 'option3', color %}
+      {% assign option2_variants = product.variants | where: 'option2', color %}
+      {% assign all_variants = product.variants | where: 'option1', color | concat: option2_variants | concat: option3_variants | uniq %}
+      {% for variant in all_variants %}
+        <li>[{{ variant.option2 }} - Variant ID: {{ variant.id }}]</li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+</div>
+{%- endunless -%}
