@@ -1,0 +1,27 @@
+{%- unless product.has_only_default_variant -%}
+  <div class="variants-size-and-materials">
+    {% assign color_options = product.options_with_values | where: 'name', 'Color' | map: 'values' | first %}
+    {% assign size_option_name = product.options_with_values | where: 'name', 'Size' | map: 'name' | first %}
+    
+    {% for color in color_options %}
+      <ul class="{{ color }}-variants variants-list">
+        {% assign option3_variants = product.variants | where: 'option3', color %}
+        {% assign option2_variants = product.variants | where: 'option2', color %}
+        {% assign all_variants = product.variants | where: 'option1', color | concat: option2_variants | concat: option3_variants | uniq %}
+        
+        {% for variant in all_variants %}
+          {% assign size_value = '' %}
+          {% if product.options[1] == size_option_name %}
+            {% assign size_value = variant.option2 %}
+          {% elsif product.options[2] == size_option_name %}
+            {% assign size_value = variant.option3 %}
+          {% endif %}
+          
+          <li class="variant-item" data-id="{{ variant.id }}" data-{{ size_value | handleize }}="{{ variant.id }}">
+            <a href="{{ variant.url }}">{{ size_value }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endfor %}
+  </div>
+{%- endunless -%}
