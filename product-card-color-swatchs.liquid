@@ -1,0 +1,88 @@
+{%- unless card_product.has_only_default_variant -%}
+  <div class="product-card__swatches">
+    {%- assign unique_colors = '' -%}
+    {%- for option in card_product.options_with_values -%}
+      {%- assign downcase_option = option.name | downcase -%}
+      {%- if downcase_option == 'select color' -%}
+        {%- for value in option.values -%}
+          {%- assign variant = card_product.variants | where: "option1", value | first -%}
+          {%- unless unique_colors contains value -%}
+            {%- assign unique_colors = unique_colors | append: value | append: ',' -%}
+            <div class="swatch {% if forloop.first %} selected{% endif %}" 
+                 data-variant-id="{{ variant.id }}" 
+                 data-variant-image="{{ variant.featured_image | img_url: 'medium' }}" 
+                 style="background-color: {% if value == 'Pink' %}#E12865;{% else %}{{ value | downcase | handleize }}{% endif %}; 
+                        background-image: url({{ value | downcase | handleize | append: '.png' | file_url }})">
+            </div>
+          {%- endunless -%}
+        {%- endfor -%}
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+{%- endunless -%}
+
+<style>
+.product-card__swatches {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.product-card__swatches .swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+  background-repeat: no-repeat;
+  background-size: cover;
+  font-size: 0;
+  margin: 0;
+}
+
+.product-card__swatches .swatch-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.product-card__swatches .swatch.selected {
+  outline: 6px double #000 !important;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Ensure unique selector for the product card swatches
+  const productCards = document.querySelectorAll('.product-card-wrapper');
+
+  productCards.forEach(productCard => {
+    const swatches = productCard.querySelectorAll('.product-card__swatches .swatch');
+    const variantInput = productCard.querySelector('.product-variant-id');
+    const productImage = productCard.querySelector('.product-card__image');
+
+    swatches.forEach(swatch => {
+      swatch.addEventListener('click', function () {
+        const variantId = this.getAttribute('data-variant-id');
+        const variantImage = this.getAttribute('data-variant-image');
+
+        // Update hidden input with variant ID
+        if (variantInput) {
+          variantInput.value = variantId;
+        }
+
+        // Update product image
+        if (productImage && variantImage) {
+          productImage.src = variantImage;
+        }
+
+        // Add a selected class for styling
+        swatches.forEach(sw => sw.classList.remove('selected'));
+        this.classList.add('selected');
+      });
+    });
+  });
+});
+</script>
